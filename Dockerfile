@@ -7,7 +7,7 @@ WORKDIR /app
 
 COPY composer.json package.json ./
 
-COPY .env.exampe .env
+COPY .env.example .env
 
 COPY . .
 
