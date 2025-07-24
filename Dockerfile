@@ -25,6 +25,4 @@ RUN php artisan key:generate
 
 EXPOSE 8000
 
-COPY start.sh /start.sh
-RUN chmod +x /start.sh
-CMD ["/start.sh"]
+CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
