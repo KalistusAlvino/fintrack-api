@@ -9,7 +9,7 @@ COPY composer.json package.json ./
 
 COPY .env .env
 
-COPY ..
+COPY . .
 
 RUN curl -s5 https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin
 RUN composerinstall --no-interaction --prefer-dist --optimize-autoloader
