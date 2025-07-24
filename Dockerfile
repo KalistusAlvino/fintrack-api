@@ -23,7 +23,7 @@ RUN php artisan storage:link
 
 RUN php artisan key:generate
 
-EXPOSE 10000
+EXPOSE 8000
 
 COPY start.sh /start.sh
 RUN chmod +x /start.sh
