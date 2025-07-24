@@ -7,7 +7,6 @@ WORKDIR /app
 
 COPY composer.json package.json ./
 
-COPY .env.example .env
 
 COPY . .
 
@@ -21,7 +20,6 @@ RUN chown -R www-data:www-data storage bootstrap/cache && chmod -R 775 storage b
 
 RUN php artisan storage:link
 
-RUN php artisan key:generate
 
 RUN php artisan config:clear
 
