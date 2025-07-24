@@ -19,7 +19,9 @@ RUN docker-php-ext-install pdo_mysql
 
 RUN chown -R www-data:www-data storage bootstrap/cache && chmod -R 775 storage bootstrap/cache
 
-RUN php artisan  storage:link
+RUN php artisan storage:link
+
+RUN php artisan key:generate
 
 EXPOSE 10000
 
