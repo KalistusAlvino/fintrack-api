@@ -12,7 +12,9 @@ COPY .env.example .env
 COPY . .
 
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
-RUN composer install --no-interaction --prefer-dist --optimize-autoLoader
+
+RUN composer install --no-interaction --prefer-dist --optimize-autoloader
+
 
 RUN chown -R www-data:www-data storage bootstrap/cache && chmod -R 775 storage bootstrap/cache
 
