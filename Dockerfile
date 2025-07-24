@@ -1,0 +1,26 @@
+FROM php:8.3.22-cli
+
+RUN apt-get update && apt-get install -y \
+    git unzip curl libzip-dev libpng-dev libonig-dev libxml2-dev
+
+WORKDIR \app
+
+COPY composer.json package.json ./
+
+COPY .env .env
+
+COPY .env .env
+
+COPY ..
+
+RUN curl -s5 https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin
+RUN composerinstall --no-interaction --prefer-dist --optimize-autoloader
+
+RUN chown -R www-data:www-data storage bootstrap/cache && chmod -R 775 storage bootstrap/cache
+
+RUN php artisan  storage:link
+
+EXPOSE 8000
+
+CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
+CMD ["php", "artisan", "queue:work"]
