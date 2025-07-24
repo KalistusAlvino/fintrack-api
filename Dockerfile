@@ -23,7 +23,7 @@ RUN php artisan storage:link
 
 RUN php artisan key:generate
 
-php artisan config:clear
+RUN php artisan config:clear
 
 EXPOSE 8000
 
