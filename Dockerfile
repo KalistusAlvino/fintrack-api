@@ -18,7 +18,7 @@ RUN docker-php-ext-install pdo_mysql
 
 RUN chown -R www-data:www-data storage bootstrap/cache && chmod -R 775 storage bootstrap/cache
 
-RUN php artisan migrate:fresh
+RUN php artisan migrate:fresh --force
 
 RUN php artisan passport:client --personal --name="Fintrack" --provider=users
 
