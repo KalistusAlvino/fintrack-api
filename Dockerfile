@@ -21,7 +21,7 @@ RUN chown -R www-data:www-data storage bootstrap/cache && chmod -R 775 storage b
 
 RUN php artisan  storage:link
 
-EXPOSE 8000
+EXPOSE 10000
 
 COPY start.sh /start.sh
 RUN chmod +x /start.sh
