@@ -15,7 +15,7 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 
 RUN composer install --no-interaction --prefer-dist --optimize-autoloader
 
-RUN docker-php-ext install pdo_mysql
+RUN docker-php-ext-install pdo_mysql
 
 RUN chown -R www-data:www-data storage bootstrap/cache && chmod -R 775 storage bootstrap/cache
 
