@@ -23,12 +23,8 @@ RUN php artisan storage:link
 
 RUN php artisan key:generate
 
-echo "DB CONNECTION: $DB_CONNECTION"
-
 php artisan config:clear
 
 EXPOSE 8000
 
-CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
-
-echo "DB CONNECTION: $DB_CONNECTION"
+CMD ["/start.sh"]

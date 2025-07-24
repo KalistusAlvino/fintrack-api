@@ -1,7 +1,5 @@
-#!/bin/sh
+echo "DB CONNECTION: $DB_CONNECTION"
 
-echo "Starting Laravel server..."
-nohup php artisan serve --host=0.0.0.0 --port=8000 > /dev/null 2>&1 &
+php artisan serve --host=0.0.0.0 --port=8000 &
 
-echo "Starting Laravel queue worker..."
 php artisan queue:work
