@@ -64,7 +64,9 @@ class RegisterController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Successfully registered',
-                'data' => []
+                'data' => [
+                    'email' => $tempUser->email
+                ]
             ], 201);
 
         } catch (ValidationException $e) {
