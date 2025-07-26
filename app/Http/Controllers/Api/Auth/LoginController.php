@@ -12,10 +12,10 @@ class LoginController extends Controller
     {
         try {
             $request->validate([
-                'email' => 'required|email',
+                'username' => 'required|email',
                 'password' => 'required|string',
             ]);
-            $temp_user = temp_user::where('email', $request->email)->first();
+            $temp_user = temp_user::where('username', $request->username)->first();
 
             if ($temp_user) {
                 return response()->json([
@@ -25,7 +25,7 @@ class LoginController extends Controller
                 ], 403);
             }
 
-            if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
+            if (Auth::attempt(['username' => $request->username, 'password' => $request->password])) {
                 $user = Auth::user();
                 $accessToken = $user->createToken('authToken')->accessToken;
 
