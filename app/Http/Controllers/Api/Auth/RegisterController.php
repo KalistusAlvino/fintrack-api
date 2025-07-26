@@ -80,7 +80,7 @@ class RegisterController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'Registration failed' . $e->getMessage(),
+                'message' => 'Registration failed',
                 'data' => []
             ], 500);
         }
