@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\temp_user;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 
