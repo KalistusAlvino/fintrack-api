@@ -12,7 +12,7 @@ class LoginController extends Controller
     {
         try {
             $request->validate([
-                'username' => 'required|email',
+                'username' => 'required|string',
                 'password' => 'required|string',
             ]);
             $temp_user = temp_user::where('username', $request->username)->first();
