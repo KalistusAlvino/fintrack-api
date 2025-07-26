@@ -60,7 +60,7 @@ class LoginController extends Controller
 
             return response()->json([
                 'status' => 'error',
-                'message' => '',
+                'message' => 'Login failed'. $e->getMessage(),
                 'data' => []
             ], 500);
         }
