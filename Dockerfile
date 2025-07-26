@@ -27,9 +27,9 @@ RUN php artisan vendor:publish --tag=passport-config
 
 RUN PHP artisan passport:keys --force
 
-php artisan passport:client --personal --name=fintrack --provider=users --no-interaction
+php artisan passport:client --personal --name=fintrack --provider=0 --no-interaction
 
-php artisan passport:client --password --name=fintrack --provider=users --no-interaction
+php artisan passport:client --password --name=fintrack --provider=0 --no-interaction
 
 EXPOSE 8000
 
