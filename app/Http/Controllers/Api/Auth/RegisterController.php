@@ -114,8 +114,24 @@ class RegisterController extends Controller
             $request->validate([
                 'email' => 'required|email|exists:temp_users,email',
             ]);
-
             $temp_user = temp_user::where('email', $request->email)->firstOrFail();
+            $user = User::where('email', $request->email)->first();
+
+            if ($user) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Email already verified',
+                    'data' => []
+                ], 422);
+            }
+            if(!$temp_user) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'User not found',
+                    'data' => []
+                ], 404);
+            }
+
             $temp_user->email_verification_token = Str::random(64);
             $temp_user->save();
 
@@ -124,7 +140,9 @@ class RegisterController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Verification email resent successfully',
-                'data' => []
+                'data' => [
+                    'email' => $temp_user->email
+                ]
             ], 200);
 
         } catch (\Exception $e) {

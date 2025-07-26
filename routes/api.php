@@ -9,5 +9,4 @@ Route::controller(RegisterController::class)->group( function () {
     Route::post('register', 'register')->name('register');
     Route::get('verify/{token}', 'verify')->name('verify');
     Route::post('resend-verification', 'resendVerification')->name('resend-verification');
-
 });
