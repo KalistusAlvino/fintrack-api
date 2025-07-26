@@ -90,7 +90,7 @@ class RegisterController extends Controller
         try {
             $temp_user = temp_user::where('email_verification_token', $token)->firstOrFail();
             $user = new User();
-            $user->username = $temp_user->username;
+            $user->username = ucwords($temp_user->username);
             $user->email = $temp_user->email;
             $user->password = $temp_user->password;
             $user->email_verified_at = now();
