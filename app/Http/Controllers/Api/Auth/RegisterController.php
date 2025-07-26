@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Mail\VerificationMail;
 use App\Models\temp_user;
 use App\Models\User;
+use App\Models\Wallet;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
@@ -95,6 +96,10 @@ class RegisterController extends Controller
             $user->password = $temp_user->password;
             $user->email_verified_at = now();
             $user->save();
+
+            $wallet = new Wallet();
+            $wallet->user_id = $user->id;
+            $wallet->save();
 
             $temp_user->delete();
 
