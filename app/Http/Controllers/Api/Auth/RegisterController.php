@@ -135,7 +135,7 @@ class RegisterController extends Controller
             $temp_user->email_verification_token = Str::random(64);
             $temp_user->save();
 
-            Mail::to($temp_user->email)->send(new VerificationMail($temp_user->email_verification_token));
+            Mail::to($temp_user->email)->queue(new VerificationMail($temp_user->email_verification_token));
 
             return response()->json([
                 'success' => true,
@@ -156,4 +156,3 @@ class RegisterController extends Controller
         }
     }
 
-}
