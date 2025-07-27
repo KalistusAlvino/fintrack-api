@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\Auth\LoginController;
 use App\Http\Controllers\Api\Auth\RegisterController;
+use App\Models\WalletController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -15,4 +16,12 @@ Route::controller(RegisterController::class)->group(function () {
 
 Route::controller(LoginController::class)->group(function () {
     Route::post('login', 'login')->name('login');
+});
+
+Route::middleware('auth:api')->group(function () {
+    Route::controller(WalletController::class)->group(function () {
+        Route::get('wallet/{user_id}', 'index')->name('wallet.index');
+        Route::get('wallet/income/{user_id}', 'income')->name('wallet.income');
+        Route::get('wallet/expenses/{user_id}', 'expenses')->name('wallet.expenses');
+    });
 });
