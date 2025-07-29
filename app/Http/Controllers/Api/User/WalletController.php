@@ -33,6 +33,27 @@ class WalletController extends Controller
         }
     }
 
+    public function income($user_id)
+    {
+        try {
+            $incomes = Income::with('incomeCategory')->whereHas('wallet', function ($query) use ($user_id) {
+                $query->where('user_id', $user_id);
+            })->get();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Income data fetched successfully',
+                'data' => $incomes
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error fetching income data',
+                'data' => []
+            ], 500);
+        }
+    }
+
     public function incomeCategoryPost(Request $request)
     {
         try {
