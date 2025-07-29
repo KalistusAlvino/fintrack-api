@@ -23,5 +23,7 @@ Route::middleware('auth:api')->group(function () {
         Route::get('wallet/{user_id}', 'index')->name('wallet.index');
         Route::get('wallet/income/{user_id}', 'income')->name('wallet.income');
         Route::get('wallet/expenses/{user_id}', 'expenses')->name('wallet.expenses');
+
+        Route::post('wallet/income-category', 'incomeCategoryPost')->name('wallet.income-category.post');
     });
 });
