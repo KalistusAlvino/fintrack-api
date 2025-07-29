@@ -25,5 +25,6 @@ Route::middleware('auth:api')->group(function () {
         Route::get('wallet/expenses/{user_id}', 'expenses')->name('wallet.expenses');
 
         Route::post('wallet/income-category', 'incomeCategoryPost')->name('wallet.income-category.post');
+        Route::post('wallet/income/', 'incomePost')->name('wallet.income-category.post');
     });
 });

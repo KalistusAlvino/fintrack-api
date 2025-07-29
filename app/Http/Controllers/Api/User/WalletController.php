@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\User;
 
 use App\Http\Controllers\Controller;
+use App\Models\Income;
 use App\Models\IncomeCategory;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
@@ -72,6 +73,42 @@ class WalletController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Error processing request',
+                'data' => []
+            ], 500);
+        }
+    }
+    public function incomePost(Request $request)
+    {
+        try {
+            $request->validate([
+                'category_id' => 'required|exists:income_category,id',
+                'amount' => 'required|numeric|min:0',
+            ]);
+
+            $income = new Income();
+            $income->wallet_id = Auth::user()->wallet->id;
+            $income->category_id = $request->category_id;
+            $income->amount = $request->amount;
+            $income->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Income recorded successfully',
+                'data' => $income
+            ], 201);
+
+        } catch (ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => collect($e->errors())->flatten()->first(),
+                'data' => []
+            ], 422);
+        } catch (\Exception $e) {
+            Log::error('Income Post Error: ' . $e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to record income',
                 'data' => []
             ], 500);
         }
