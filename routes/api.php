@@ -2,7 +2,7 @@
 
 use App\Http\Controllers\Api\Auth\LoginController;
 use App\Http\Controllers\Api\Auth\RegisterController;
-use App\Models\WalletController;
+use App\Http\Controllers\Api\User\WalletController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
