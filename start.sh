@@ -1,6 +1,6 @@
 echo "DB CONNECTION: $DB_CONNECTION"
 
-php artisan migrate:fresh
+# php artisan migrate:fresh 
 php artisan vendor:publish --tag=passport-config
 php artisan passport:keys --force
 php artisan passport:client --personal --name=fintrack --provider=0 --no-interaction

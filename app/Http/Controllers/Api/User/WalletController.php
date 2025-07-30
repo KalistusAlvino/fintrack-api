@@ -51,7 +51,7 @@ class WalletController extends Controller
                     'id' => $incomes->id ?? null,
                     'name' => $incomes->incomeCategory->name ?? 'No Category',
                     'images' => $incomes->incomeCategory->image ?? null,
-                    'date' => $incomes->date ?? null,
+                    'date' => $incomes->date ? $incomes->date->format('M j, Y') : null,
                     'amount' => $incomes->amount ?? 0,
                 ]
             ], 200);
