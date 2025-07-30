@@ -11,6 +11,7 @@ class Income extends Model
     protected $fillable = [
         'wallet_id',
         'category_id',
+        'date',
         'amount',
     ];
 

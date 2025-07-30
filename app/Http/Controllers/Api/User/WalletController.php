@@ -5,17 +5,20 @@ namespace App\Http\Controllers\Api\User;
 use App\Http\Controllers\Controller;
 use App\Models\Income;
 use App\Models\IncomeCategory;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Storage;
 
 class WalletController extends Controller
 {
-    public function index($user_id)
+    public function index()
     {
         try {
-            $user = User::with('wallet')->findOrFail($user_id);
+            $userId = Auth::id() ?? null; // Use authenticated user ID or provided user ID
+            $user = User::with('wallet')->findOrFail($userId);
             return response()->json([
                 'success' => true,
                 'message' => 'Wallet data fetched successfully',
@@ -33,17 +36,24 @@ class WalletController extends Controller
         }
     }
 
-    public function income($user_id)
+    public function income()
     {
         try {
-            $incomes = Income::with('incomeCategory')->whereHas('wallet', function ($query) use ($user_id) {
-                $query->where('user_id', $user_id);
+            $userId = Auth::id() ?? null;
+            $incomes = Income::with('incomeCategory')->whereHas('wallet', function ($query) use ($userId) {
+                $query->where('user_id', $userId);
             })->get();
 
             return response()->json([
                 'success' => true,
                 'message' => 'Income data fetched successfully',
-                'data' => $incomes
+                'data' => [
+                    'id' => $incomes->id ?? null,
+                    'name' => $incomes->incomeCategory->name ?? 'No Category',
+                    'images' => $incomes->incomeCategory->image ?? null,
+                    'date' => $incomes->date ?? null,
+                    'amount' => $incomes->amount ?? 0,
+                ]
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
@@ -104,12 +114,14 @@ class WalletController extends Controller
         try {
             $request->validate([
                 'category_id' => 'required|exists:income_category,id',
+                'date' => 'required|date',
                 'amount' => 'required|numeric|min:0',
             ]);
 
             $income = new Income();
             $income->wallet_id = Auth::user()->wallet->id;
             $income->category_id = $request->category_id;
+            $income->date = now(); // Set current date or you can use $request->date if provided
             $income->amount = $request->amount;
             $income->save();
 

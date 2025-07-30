@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('wallet_id')->constrained('wallet')->onDelete('cascade');
             $table->foreignId('category_id')->constrained('income_category')->onDelete('cascade');
+            $table->date('date');
             $table->integer('amount');
             $table->timestamps();
         });
