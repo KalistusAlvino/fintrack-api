@@ -87,11 +87,11 @@ class WalletController extends Controller
             // Ganti 'transaction_date' dengan nama kolom tanggal Anda.
             $incomeData = $user->incomes()
                 ->select(
-                    DB::raw("DATE_FORMAT(transaction_date, '%Y-%m') as month_year"),
+                    DB::raw("DATE_FORMAT(date, '%Y-%m') as month_year"),
                     DB::raw("SUM(Amount) as total_income")
                 )
-                ->where('transaction_date', '>=', $startDate->toDateTimeString())
-                ->where('transaction_date', '<=', $endDate->toDateTimeString())
+                ->where('date', '>=', $startDate->toDateTimeString())
+                ->where('date', '<=', $endDate->toDateTimeString())
                 ->groupBy('month_year')
                 ->orderBy('month_year', 'asc')
                 ->get()
