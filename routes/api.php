@@ -20,11 +20,11 @@ Route::controller(LoginController::class)->group(function () {
 
 Route::middleware('auth:api')->group(function () {
     Route::controller(WalletController::class)->group(function () {
-        Route::get('wallet/{user_id}', 'index')->name('wallet.index');
-        Route::get('wallet/income/{user_id}', 'income')->name('wallet.income');
-        Route::get('wallet/expenses/{user_id}', 'expenses')->name('wallet.expenses');
+        Route::get('wallet', 'index')->name('wallet.index');
+        Route::get('wallet/income', 'income')->name('wallet.income');
+        Route::get('wallet/expenses', 'expenses')->name('wallet.expenses');
 
         Route::post('wallet/income-category', 'incomeCategoryPost')->name('wallet.income-category.post');
-        Route::post('wallet/income/', 'incomePost')->name('wallet.income-category.post');
+        Route::post('wallet/income', 'incomePost')->name('wallet.income-category.post');
     });
 });
