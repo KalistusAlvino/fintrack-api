@@ -22,6 +22,7 @@ Route::middleware('auth:api')->group(function () {
     Route::controller(WalletController::class)->group(function () {
         Route::get('wallet', 'index')->name('wallet.index');
         Route::get('wallet/income', 'income')->name('wallet.income');
+        Route::get('wallet/monthly-income', 'monthlyIncome')->name('wallet.monthly-income');
         Route::get('wallet/expenses', 'expenses')->name('wallet.expenses');
 
         Route::post('wallet/income-category', 'incomeCategoryPost')->name('wallet.income-category.post');

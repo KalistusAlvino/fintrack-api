@@ -6,9 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Models\Income;
 use App\Models\IncomeCategory;
 use App\Models\User;
+use Carbon\CarbonPeriod;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Storage;
@@ -69,6 +71,64 @@ class WalletController extends Controller
         }
     }
 
+    public function monthlyIncome()
+    {
+        try {
+            $user = Auth::user();
+
+            // 1. TENTUKAN RENTANG WAKTU (12 BULAN TERAKHIR)
+            // Batas akhir adalah hari ini (31 Juli 2025).
+            $endDate = Carbon::now();
+            // Batas awal adalah 11 bulan sebelum bulan ini, di tanggal 1.
+            // Ini akan menghasilkan periode 12 bulan, dari 1 Agustus 2024 hingga 31 Juli 2025.
+            $startDate = Carbon::now()->subMonths(11)->startOfMonth();
+
+            // 2. AMBIL DATA DARI DATABASE
+            // Ganti 'transaction_date' dengan nama kolom tanggal Anda.
+            $incomeData = $user->incomes()
+                ->select(
+                    DB::raw("DATE_FORMAT(transaction_date, '%Y-%m') as month_year"),
+                    DB::raw("SUM(Amount) as total_income")
+                )
+                ->where('transaction_date', '>=', $startDate->toDateTimeString())
+                ->where('transaction_date', '<=', $endDate->toDateTimeString())
+                ->groupBy('month_year')
+                ->orderBy('month_year', 'asc')
+                ->get()
+                ->keyBy('month_year'); // Jadikan 'YYYY-MM' sebagai key untuk pencarian cepat
+
+            // 3. BUAT PERIODE LENGKAP & GABUNGKAN DATA
+            $report = [];
+            $period = CarbonPeriod::create($startDate, '1 month', $endDate);
+
+            foreach ($period as $date) {
+                $monthKey = $date->format('Y-m'); // Format '2025-07'
+
+                // Cek apakah ada data pendapatan untuk bulan ini. Jika tidak ada, totalnya 0.
+                $totalIncome = $incomeData->get($monthKey)->total_income ?? 0;
+
+                $report[] = [
+                    'month_name' => $date->format('F Y'), // Format 'July 2025'
+                    'month_key' => $monthKey,
+                    'total_income' => (float) $totalIncome,
+                    'formatted_income' => '$ ' . number_format($totalIncome, 2, ',', '.')
+                ];
+            }
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Success fetching monthly income',
+                'data' => $report
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error: ' . $e->getMessage(),
+                'data' => []
+            ], 500);
+        }
+    }
 
     public function incomeCategoryPost(Request $request)
     {
