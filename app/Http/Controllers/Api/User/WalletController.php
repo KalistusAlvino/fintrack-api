@@ -174,7 +174,6 @@ class WalletController extends Controller
         try {
             $request->validate([
                 'category_id' => 'required|exists:income_category,id',
-                'date' => 'required|date',
                 'amount' => 'required|numeric|min:0',
             ]);
 
