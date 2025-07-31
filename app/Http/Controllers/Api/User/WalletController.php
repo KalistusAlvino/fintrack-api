@@ -54,6 +54,7 @@ class WalletController extends Controller
                     'images' => $income->incomeCategory->image ?? null,
                     'date' => $income->date ? Carbon::parse($income->date)->format('M j, Y') : null,
                     'amount' => $income->amount ?? 0,
+                    'formatted_amount' => number_format($income->amount, 2, ',', '.')
                 ];
             });
 
@@ -111,7 +112,7 @@ class WalletController extends Controller
                     'month_name' => $date->format('F Y'), // Format 'July 2025'
                     'month_key' => $monthKey,
                     'total_income' => (float) $totalIncome,
-                    'formatted_income' => '$ ' . number_format($totalIncome, 2, ',', '.')
+                    'formatted_income' => number_format($totalIncome, 2, ',', '.')
                 ];
             }
 
