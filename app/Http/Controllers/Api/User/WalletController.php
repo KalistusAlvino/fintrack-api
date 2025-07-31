@@ -132,7 +132,7 @@ class WalletController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Error fetching monthly income data',
+                'message' => 'Error fetching monthly income data'. $e->getMessage(),
                 'data' => []
             ], 500);
         }
