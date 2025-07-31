@@ -64,6 +64,69 @@ class WalletController extends Controller
         }
     }
 
+    public function monthlyIncome()
+    {
+        try {
+            $userId = Auth::id() ?? null;
+
+            // Buat array 12 bulan ke belakang
+            $monthlyData = [];
+            $currentDate = now();
+
+            // Generate 12 bulan ke belakang
+            for ($i = 11; $i >= 0; $i--) {
+                $monthDate = $currentDate->copy()->subMonths($i);
+                $monthKey = $monthDate->format('Y-m');
+
+                $monthlyData[$monthKey] = [
+                    'month' => $monthDate->format('M Y'), // Jan 2024
+                    'month_number' => $monthDate->format('n'), // 1, 2, 3, dst
+                    'year' => $monthDate->format('Y'),
+                    'total_income' => 0,
+                    'count_transactions' => 0
+                ];
+            }
+
+            // Ambil data income 12 bulan terakhir dengan sum per bulan
+            $incomes = Income::selectRaw('DATE_FORMAT(date, "%Y-%m") as month_key,DATE_FORMAT(date, "%M %Y") as month_name,MONTH(date) as month_number,YEAR(date) as year,
+                        SUM(amount) as total_amount,COUNT(*) as transaction_count')
+                ->whereHas('wallet', function ($query) use ($userId) {
+                    $query->where('user_id', $userId);
+                })
+                ->where('date', '>=', $currentDate->copy()->subMonths(11)->startOfMonth())
+                ->where('date', '<=', $currentDate->copy()->endOfMonth())
+                ->groupBy('month_key')
+                ->orderBy('month_key', 'asc')
+                ->get();
+
+            // Merge data aktual dengan template 12 bulan
+            foreach ($incomes as $income) {
+                if (isset($monthlyData[$income->month_key])) {
+                    $monthlyData[$income->month_key]['total_income'] = (float) $income->total_amount;
+                    $monthlyData[$income->month_key]['count_transactions'] = $income->transaction_count;
+                }
+            }
+
+            // Format final data
+            $responseData = array_values($monthlyData);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Monthly income summary fetched successfully',
+                'data' => [
+                    'month' => $responseData->month_number ?? null,
+                    'total_income' => $responseData->total_income ?? 0,
+                ]
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error fetching monthly income data',
+                'data' => []
+            ], 500);
+        }
+    }
+
     public function incomeCategoryPost(Request $request)
     {
         try {
