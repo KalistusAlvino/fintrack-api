@@ -83,8 +83,8 @@ class WalletController extends Controller
                 $key = $month->format('Y-m');
 
                 $monthlyData->put($key, [
-                    'month' => $month->format('M Y'),       // contoh: Jul 2025
-                    'month_number' => (int) $month->format('n'),  // 1-12
+                    'month' => $month->format('M Y'),
+                    'month_number' => (int) $month->format('n'),
                     'year' => (int) $month->format('Y'),
                     'total_income' => 0,
                     'transaction_count' => 0,
@@ -100,11 +100,14 @@ class WalletController extends Controller
                 ->get()
                 ->groupBy(fn($income) => Carbon::parse($income->date)->format('Y-m'));
 
-            // Gabungkan ke kerangka
-            foreach ($incomes as $monthKey => $items) {
-                $monthlyData[$monthKey]['total_income'] = $items->sum('amount');
-                $monthlyData[$monthKey]['transaction_count'] = $items->count();
-            }
+            // Gabungkan data aktual dengan kerangka
+            $monthlyData = $monthlyData->map(function ($data, $key) use ($incomes) {
+                if (isset($incomes[$key])) {
+                    $data['total_income'] = $incomes[$key]->sum('amount');
+                    $data['transaction_count'] = $incomes[$key]->count();
+                }
+                return $data;
+            });
 
             // Ubah ke array
             $responseData = $monthlyData->values()->toArray();
