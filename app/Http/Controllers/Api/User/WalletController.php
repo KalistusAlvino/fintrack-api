@@ -92,7 +92,7 @@ class WalletController extends Controller
                 )
                 ->where('date', '>=', $startDate->toDateTimeString())
                 ->where('date', '<=', $endDate->toDateTimeString())
-                ->groupBy('month_year')
+                ->groupBy('month_year', 'wallet.user_id') // <-- Tambahkan 'wallet.user_id' di sini
                 ->orderBy('month_year', 'asc')
                 ->get()
                 ->keyBy('month_year'); // Jadikan 'YYYY-MM' sebagai key untuk pencarian cepat
