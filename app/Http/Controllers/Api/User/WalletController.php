@@ -7,6 +7,7 @@ use App\Models\Income;
 use App\Models\IncomeCategory;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
@@ -49,7 +50,7 @@ class WalletController extends Controller
                     'id' => $income->id ?? null,
                     'name' => $income->incomeCategory->name ?? 'No Category',
                     'images' => $income->incomeCategory->image ?? null,
-                    'date' => $income->date ? $income->date->format('M j, Y') : null,
+                    'date' => $income->date ? Carbon::parse($income->date)->format('M j, Y') : null,
                     'amount' => $income->amount ?? 0,
                 ];
             });
