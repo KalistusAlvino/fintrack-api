@@ -75,74 +75,67 @@ class WalletController extends Controller
             $userId = Auth::id();
             $now = Carbon::now();
 
-            // Alternatif: Buat array kosong dan push satu per satu
-            $monthlyData = [];
+            // Buat template 12 bulan dengan key yang konsisten
             $months = [];
+            $monthKeys = []; // Simpan urutan untuk memastikan tidak duplikat
 
-            // Generate 12 bulan ke belakang
             for ($i = 11; $i >= 0; $i--) {
                 $month = $now->copy()->subMonths($i);
                 $key = $month->format('Y-m');
 
-                $months[] = $key; // Simpan urutan bulan
-
-                $monthlyData[$key] = [
-                    'month' => $month->format('M Y'),
-                    'month_number' => (int) $month->format('n'),
-                    'year' => (int) $month->format('Y'),
-                    'total_income' => 0,
-                    'transaction_count' => 0,
-                ];
+                // Pastikan tidak ada duplikat key
+                if (!in_array($key, $monthKeys)) {
+                    $monthKeys[] = $key;
+                    $months[$key] = [
+                        'month' => $month->format('M Y'),
+                        'month_number' => (int) $month->format('n'),
+                        'year' => (int) $month->format('Y'),
+                        'total_income' => 0,
+                        'transaction_count' => 0,
+                    ];
+                }
             }
 
-            // Ambil data income dalam 12 bulan terakhir
-            $incomes = Income::whereHas('wallet', function ($query) use ($userId) {
-                $query->where('user_id', $userId);
-            })
+            // Single query dengan agregasi di database
+            $incomes = Income::selectRaw('
+            DATE_FORMAT(date, "%Y-%m") as month_key,
+            SUM(amount) as total_amount,
+            COUNT(*) as transaction_count
+        ')
+                ->whereHas('wallet', fn($q) => $q->where('user_id', $userId))
                 ->whereBetween('date', [
                     $now->copy()->subMonths(11)->startOfMonth(),
-                    $now->copy()->endOfMonth()
+                    $now->endOfMonth()
                 ])
-                ->get();
+                ->groupBy('month_key')
+                ->get()
+                ->keyBy('month_key');
 
-            // Group manual tanpa collection
-            $groupedIncomes = [];
-            foreach ($incomes as $income) {
-                $monthKey = Carbon::parse($income->date)->format('Y-m');
-                if (!isset($groupedIncomes[$monthKey])) {
-                    $groupedIncomes[$monthKey] = [];
-                }
-                $groupedIncomes[$monthKey][] = $income;
-            }
-
-            // Update data dengan income aktual
-            foreach ($groupedIncomes as $monthKey => $monthIncomes) {
-                if (isset($monthlyData[$monthKey])) {
-                    $monthlyData[$monthKey]['total_income'] = array_sum(array_column($monthIncomes, 'amount'));
-                    $monthlyData[$monthKey]['transaction_count'] = count($monthIncomes);
+            // Merge data aktual ke template berdasarkan urutan monthKeys
+            foreach ($monthKeys as $key) {
+                if (isset($incomes[$key])) {
+                    $months[$key]['total_income'] = (int) $incomes[$key]->total_amount;
+                    $months[$key]['transaction_count'] = $incomes[$key]->transaction_count;
                 }
             }
 
-            // Buat response array sesuai urutan bulan
+            // Build response sesuai urutan monthKeys untuk menghindari duplikat
             $responseData = [];
-            foreach ($months as $monthKey) {
-                $responseData[] = $monthlyData[$monthKey];
+            foreach ($monthKeys as $key) {
+                $responseData[] = $months[$key];
             }
 
-            // Return JSON
             return response()->json([
                 'success' => true,
                 'message' => 'Monthly income summary fetched successfully',
-                'total_months' => count($responseData), // Should be 12
-                'period_start' => $months[0],
-                'period_end' => $months[11],
+                'total_months' => count($responseData), // Should be exactly 12
                 'data' => $responseData
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Error fetching monthly income data: ' . $e->getMessage(),
+                'message' => 'Error: ' . $e->getMessage(),
                 'data' => []
             ], 500);
         }
