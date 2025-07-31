@@ -44,21 +44,25 @@ class WalletController extends Controller
                 $query->where('user_id', $userId);
             })->get();
 
+            $data = $incomes->map(function ($income) {
+                return [
+                    'id' => $income->id ?? null,
+                    'name' => $income->incomeCategory->name ?? 'No Category',
+                    'images' => $income->incomeCategory->image ?? null,
+                    'date' => $income->date ? $income->date->format('M j, Y') : null,
+                    'amount' => $income->amount ?? 0,
+                ];
+            });
+
             return response()->json([
                 'success' => true,
                 'message' => 'Income data fetched successfully',
-                'data' => [
-                    'id' => $incomes->id ?? null,
-                    'name' => $incomes->incomeCategory->name ?? 'No Category',
-                    'images' => $incomes->incomeCategory->image ?? null,
-                    'date' => $incomes->date ? $incomes->date->format('M j, Y') : null,
-                    'amount' => $incomes->amount ?? 0,
-                ]
+                'data' => $data
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Error fetching income data'. $e->getMessage(),
+                'message' => 'Error fetching income data' . $e->getMessage(),
                 'data' => []
             ], 500);
         }
@@ -110,10 +114,19 @@ class WalletController extends Controller
             // Format final data
             $responseData = array_values($monthlyData);
 
+
+            $data = collect($responseData)->map(function ($response) {
+                return [
+                    'month' => $response['month_number'],
+                    'year' => $response['year'],
+                    'total_income' => $response['total_income']
+                ];
+            })->toArray();
+
             return response()->json([
                 'success' => true,
                 'message' => 'Monthly income summary fetched successfully',
-                'data' => $responseData
+                'data' => $data
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
