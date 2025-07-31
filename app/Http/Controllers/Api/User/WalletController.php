@@ -113,10 +113,7 @@ class WalletController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Monthly income summary fetched successfully',
-                'data' => [
-                    'month' => $responseData->month_number ?? null,
-                    'total_income' => $responseData->total_income ?? 0,
-                ]
+                'data' => $responseData
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
