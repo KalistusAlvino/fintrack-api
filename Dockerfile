@@ -16,13 +16,11 @@ RUN composer install --no-interaction --prefer-dist --optimize-autoloader
 
 RUN docker-php-ext-install pdo_mysql
 
-RUN chown -R www-data:www-data storage bootstrap/cache && chmod -R 775 storage bootstrap/cache
-
-
 RUN php artisan storage:link
 
 RUN php artisan config:clear
 
+RUN chown -R www-data:www-data storage bootstrap/cache && chmod -R 775 storage bootstrap/cache
 
 EXPOSE 8000
 
