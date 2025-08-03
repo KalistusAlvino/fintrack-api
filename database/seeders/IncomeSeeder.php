@@ -22,7 +22,7 @@ class IncomeSeeder extends Seeder
                 $amount = rand(50000, 200000); // jumlah income acak
                 $categoryId = rand(1, 2); // hanya antara 1 atau 2
                 $date = Carbon::now()
-                    ->subYears(rand(0, 3))     // mundur 0–3 tahun
+                    ->subYears(rand(0, 1))     // mundur 0–1 tahun
                     ->subMonths(rand(0, 11))   // mundur 0–11 bulan
                     ->setDay(rand(1, 28));     // tanggal 1–28, aman untuk semua bulan
                 Income::create([

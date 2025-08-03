@@ -113,7 +113,7 @@ class WalletController extends Controller
             $endDate = Carbon::now();
             // Batas awal adalah 11 bulan sebelum bulan ini, di tanggal 1.
             // Ini akan menghasilkan periode 12 bulan, dari 1 Agustus 2024 hingga 31 Juli 2025.
-            $startDate = Carbon::now()->subMonths(11)->startOfMonth();
+            $startDate = Carbon::now()->subMonths(5)->startOfMonth();
 
             // 2. AMBIL DATA DARI DATABASE
             // Ganti 'transaction_date' dengan nama kolom tanggal Anda.
