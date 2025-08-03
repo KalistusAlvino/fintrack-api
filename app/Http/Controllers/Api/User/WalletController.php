@@ -148,7 +148,7 @@ class WalletController extends Controller
             }
 
             return response()->json([
-                'success' => false,
+                'success' => true,
                 'message' => 'Success fetching monthly income',
                 'data' => $report
             ], 200);
