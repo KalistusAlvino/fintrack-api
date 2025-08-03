@@ -28,7 +28,7 @@ class WalletController extends Controller
                 'message' => 'Wallet data fetched successfully',
                 'data' => [
                     'username' => $user->username,
-                    'balance' => $user->wallet->balance ?? 0,
+                    'balance' => number_format($user->wallet->balance, 2, ',', '.')
                 ]
             ], 200);
         } catch (\Exception $e) {
