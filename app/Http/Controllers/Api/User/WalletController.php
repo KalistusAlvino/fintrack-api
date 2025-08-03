@@ -185,6 +185,7 @@ class WalletController extends Controller
                 'amount' => 'required|numeric|min:0',
             ]);
 
+
             $income = new Income();
             $income->wallet_id = Auth::user()->wallet->id;
             $income->category_id = $request->category_id;
@@ -192,7 +193,7 @@ class WalletController extends Controller
             $income->amount = $request->amount;
             $income->save();
 
-            $wallet = Wallet::where('user_id', Auth::id());
+            $wallet = Auth::user()->wallet;
             $wallet->update([
                 'balance' => $wallet->balance + $request->amount
             ]);
