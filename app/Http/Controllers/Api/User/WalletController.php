@@ -106,51 +106,62 @@ class WalletController extends Controller
     public function monthlyIncome()
     {
         try {
-            $user = Auth::user();
+           $user = Auth::user();
 
-            // 1. TENTUKAN RENTANG WAKTU (12 BULAN TERAKHIR)
-            // Batas akhir adalah hari ini (31 Juli 2025).
+            // BAGIAN 1 & 2: PENGAMBILAN DATA (TIDAK BERUBAH)
+            // Kode Anda untuk mengambil data 12 bulan terakhir sudah benar.
             $endDate = Carbon::now();
-            // Batas awal adalah 11 bulan sebelum bulan ini, di tanggal 1.
-            // Ini akan menghasilkan periode 12 bulan, dari 1 Agustus 2024 hingga 31 Juli 2025.
             $startDate = Carbon::now()->subMonths(11)->startOfMonth();
 
-            // 2. AMBIL DATA DARI DATABASE
-            // Ganti 'transaction_date' dengan nama kolom tanggal Anda.
             $incomeData = $user->incomes()
                 ->select(
                     DB::raw("DATE_FORMAT(date, '%Y-%m') as month_year"),
                     DB::raw("SUM(Amount) as total_income")
                 )
-                ->where('date', '>=', $startDate->toDateTimeString())
-                ->where('date', '<=', $endDate->toDateTimeString())
-                ->groupBy('month_year', 'wallet.user_id') // <-- Tambahkan 'wallet.user_id' di sini
+                ->whereBetween('date', [$startDate, $endDate])
+                ->groupBy('month_year')
                 ->orderBy('month_year', 'asc')
                 ->get()
-                ->keyBy('month_year'); // Jadikan 'YYYY-MM' sebagai key untuk pencarian cepat
+                ->keyBy('month_year');
 
-            // 3. BUAT PERIODE LENGKAP & GABUNGKAN DATA
+            // BAGIAN 3: PEMBUATAN LAPORAN (TIDAK BERUBAH)
             $report = [];
             $period = CarbonPeriod::create($startDate, '1 month', $endDate);
 
             foreach ($period as $date) {
-                $monthKey = $date->format('Y-m'); // Format '2025-07'
-
-                // Cek apakah ada data pendapatan untuk bulan ini. Jika tidak ada, totalnya 0.
+                $monthKey = $date->format('Y-m');
                 $totalIncome = $incomeData->get($monthKey)->total_income ?? 0;
 
                 $report[] = [
-                    'month_name' => $date->format('F Y'), // Format 'July 2025'
+                    'month_name' => $date->format('F Y'),
                     'month_key' => $monthKey,
                     'total_income' => (float) $totalIncome,
                     'formatted_income' => number_format($totalIncome, 2, ',', '.')
                 ];
             }
 
+            // BAGIAN 4: LOGIKA PENGURUTAN BARU
+            // Kita akan urutkan ulang array $report di sini.
+            $currentYear = Carbon::now()->year;
+
+            usort($report, function ($a, $b) use ($currentYear) {
+                // Ambil tahun dan bulan dari masing-masing item
+                list($yearA, $monthA) = explode('-', $a['month_key']);
+                list($yearB, $monthB) = explode('-', $b['month_key']);
+
+                // Buat "skor urutan". Bulan di tahun ini mendapat skor lebih rendah (prioritas).
+                // Bulan di tahun lalu mendapat skor lebih tinggi (ditaruh di belakang).
+                $scoreA = ($yearA == $currentYear) ? (int)$monthA : (int)$monthA + 12;
+                $scoreB = ($yearB == $currentYear) ? (int)$monthB : (int)$monthB + 12;
+
+                // Gunakan spaceship operator untuk membandingkan skor
+                return $scoreA <=> $scoreB;
+            });
+
             return response()->json([
                 'success' => true,
                 'message' => 'Success fetching monthly income',
-                'data' => $report
+                'data' => $report // Kirim data yang sudah diurutkan
             ], 200);
 
         } catch (\Exception $e) {
