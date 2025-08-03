@@ -46,7 +46,9 @@ class WalletController extends Controller
             $userId = Auth::id() ?? null;
             $incomes = Income::with('incomeCategory')->whereHas('wallet', function ($query) use ($userId) {
                 $query->where('user_id', $userId);
-            })->get();
+            })
+            ->orderBy('created_at','desc')
+            ->get();
 
             $data = $incomes->map(function ($income) {
                 return [
@@ -151,7 +153,7 @@ class WalletController extends Controller
                 //Store using storage or public path
                 Storage::disk('public')->putFileAs('images/income_categories', $image, $imageName);
                 //Store name
-                $incomeCategory->image = url('storage/images/income_categories/' . $imageName);
+                $incomeCategory->image = secure_url('storage/images/income_categories/' . $imageName);
                 $incomeCategory->save();
 
                 return response()->json([
