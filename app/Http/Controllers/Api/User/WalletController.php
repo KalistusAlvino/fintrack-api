@@ -47,8 +47,8 @@ class WalletController extends Controller
             $incomes = Income::with('incomeCategory')->whereHas('wallet', function ($query) use ($userId) {
                 $query->where('user_id', $userId);
             })
-            ->orderBy('created_at','desc')
-            ->get();
+                ->orderBy('created_at', 'desc')
+                ->get();
 
             $data = $incomes->map(function ($income) {
                 return [
@@ -65,6 +65,34 @@ class WalletController extends Controller
                 'success' => true,
                 'message' => 'Income data fetched successfully',
                 'data' => $data
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error fetching income data' . $e->getMessage(),
+                'data' => []
+            ], 500);
+        }
+    }
+
+    public function thisMonthIncome()
+    {
+        try {
+            $userId = Auth::id() ?? null;
+            $incomes = Income::whereHas('wallet', function ($query) use ($userId) {
+                $query->where('user_id', $userId);
+            })
+                ->whereMonth('created_at', Carbon::now()->month)
+                ->whereYear('created_at', Carbon::now()->year)
+                ->sum('amount'); // langsung ambil total jumlah
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Income data fetched successfully',
+                'data' => [
+                    'total_amount' => $incomes ?? 0,
+                    'formatted_total_amount' => number_format($incomes, 2, ',', '.')
+                ]
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
