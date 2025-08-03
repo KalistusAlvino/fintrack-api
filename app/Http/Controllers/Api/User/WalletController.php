@@ -47,7 +47,8 @@ class WalletController extends Controller
             $incomes = Income::with('incomeCategory')->whereHas('wallet', function ($query) use ($userId) {
                 $query->where('user_id', $userId);
             })
-                ->orderBy('created_at', 'desc')
+                ->orderBy('date', 'desc')
+                ->limit(5)
                 ->get();
 
             $data = $incomes->map(function ($income) {
