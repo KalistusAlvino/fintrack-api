@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Income;
 use App\Models\IncomeCategory;
 use App\Models\User;
+use App\Models\Wallet;
 use Carbon\CarbonPeriod;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -190,6 +191,11 @@ class WalletController extends Controller
             $income->date = now(); // Set current date or you can use $request->date if provided
             $income->amount = $request->amount;
             $income->save();
+
+            $wallet = Wallet::where('user_id', Auth::id());
+            $wallet->update([
+                'balance' => $wallet->balance + $request->amount
+            ]);
 
             return response()->json([
                 'success' => true,
