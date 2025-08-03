@@ -172,7 +172,7 @@ class WalletController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Error processing request',
+                'message' => 'Error processing request' . $e->getMessage(),
                 'data' => []
             ], 500);
         }
