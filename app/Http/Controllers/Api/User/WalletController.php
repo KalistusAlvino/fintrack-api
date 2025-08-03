@@ -82,8 +82,8 @@ class WalletController extends Controller
             $incomes = Income::whereHas('wallet', function ($query) use ($userId) {
                 $query->where('user_id', $userId);
             })
-                ->whereMonth('created_at', Carbon::now()->month)
-                ->whereYear('created_at', Carbon::now()->year)
+                ->whereMonth('date', Carbon::now()->month)
+                ->whereYear('date', Carbon::now()->year)
                 ->sum('amount'); // langsung ambil total jumlah
 
             return response()->json([
