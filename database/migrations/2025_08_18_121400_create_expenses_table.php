@@ -11,10 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('income', function (Blueprint $table) {
+        Schema::create('expenses', function (Blueprint $table) {
             $table->id();
             $table->foreignId('wallet_id')->constrained('wallet')->onDelete('cascade');
-            $table->foreignId('category_id')->constrained('income_category')->onDelete('cascade');
+            $table->foreignId('category_id')->constrained('expenses_category')->onDelete('cascade');
             $table->string('description');
             $table->date('date');
             $table->integer('amount');
@@ -27,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('income');
+        Schema::dropIfExists('expenses');
     }
 };

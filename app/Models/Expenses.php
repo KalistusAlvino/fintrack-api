@@ -4,9 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Income extends Model
+class Expenses extends Model
 {
-    protected $table = 'income';
+    protected $table = 'expenses';
 
     protected $fillable = [
         'wallet_id',
@@ -21,8 +21,8 @@ class Income extends Model
         return $this->belongsTo(Wallet::class);
     }
 
-    public function incomeCategory()
+    public function expensesCategory()
     {
-        return $this->belongsTo(IncomeCategory::class, 'category_id');
+        return $this->belongsTo(ExpensesCategory::class, 'category_id');
     }
 }
