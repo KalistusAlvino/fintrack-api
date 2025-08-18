@@ -51,9 +51,7 @@ Route::middleware('auth:api')->group(function () {
         Route::get('wallet/expenses', 'expenses')->name('wallet.expenses');
         Route::get('wallet/monthly-expenses', 'monthlyExpenses')->name('wallet.monthly-expenses');
         Route::get('wallet/this-month-expenses', 'thisMonthExpenses')->name('wallet.thisMonthExpenses');
-    });  //Post
+        //Post
         Route::post('wallet/expenses', 'expensesPost')->name('wallet.expenses.post');
-
-
-
+    });
 });
