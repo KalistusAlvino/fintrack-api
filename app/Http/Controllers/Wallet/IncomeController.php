@@ -66,10 +66,19 @@ class IncomeController extends Controller
         try {
             $categories = IncomeCategory::all();
 
+
+            $categoriesData = $categories->map(function ($category) {
+                return [
+                    'id' => $category->id,
+                    'name' => $category->name,
+                    'image' => asset($category->image) // generate full URL
+                ];
+            });
+
             return response()->json([
                 'success' => true,
                 'message' => 'Income categories fetched successfully',
-                'data' => $categories
+                'data' => $categoriesData
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
@@ -99,13 +108,17 @@ class IncomeController extends Controller
                 //Store using storage or public path
                 Storage::disk('public')->putFileAs('images/income_categories', $image, $imageName);
                 //Store name
-                $incomeCategory->image = secure_url('storage/images/income_categories/' . $imageName);
+                $incomeCategory->image = 'storage/images/income_categories/' . $imageName;
                 $incomeCategory->save();
 
                 return response()->json([
                     'success' => true,
                     'message' => 'Income category created successfully',
-                    'data' => $incomeCategory
+                    'data' => [
+                        'id' => $incomeCategory->id,
+                        'name' => $incomeCategory->name,
+                        'image' => asset($incomeCategory->image) // Generate full URL
+                    ]
                 ], 201);
             }
 
@@ -163,8 +176,8 @@ class IncomeController extends Controller
                 $report[] = [
                     'month_name' => $date->format('F Y'), // Format 'July 2025'
                     'month_key' => $monthKey,
-                    'total_income' => (float) $totalIncome,
-                    'formatted_income' => number_format($totalIncome, 2, ',', '.')
+                    'total' => (float) $totalIncome,
+                    'formatted_total' => number_format($totalIncome, 2, ',', '.')
                 ];
             }
 
@@ -190,7 +203,7 @@ class IncomeController extends Controller
             $incomes = Income::with('incomeCategory')->whereHas('wallet', function ($query) use ($userId) {
                 $query->where('user_id', $userId);
             })
-                ->orderBy('date', 'desc')
+                ->orderBy('created_at', 'desc')
                 ->limit(5)
                 ->get();
 
@@ -198,7 +211,8 @@ class IncomeController extends Controller
                 return [
                     'id' => $income->id ?? null,
                     'name' => $income->incomeCategory->name ?? 'No Category',
-                    'images' => $income->incomeCategory->image ?? null,
+                    'images' => asset($income->incomeCategory->image),
+                    'description' => $income->description ?? 'No Description',
                     'date' => $income->date ? Carbon::parse($income->date)->format('M j, Y') : null,
                     'amount' => $income->amount ?? 0,
                     'formatted_amount' => number_format($income->amount, 2, ',', '.')
@@ -234,7 +248,7 @@ class IncomeController extends Controller
                 'success' => true,
                 'message' => 'Income data fetched successfully',
                 'data' => [
-                    'total_amount' => $incomes ?? 0,
+                    'total_amount' => (int) $incomes ?? 0,
                     'formatted_total_amount' => number_format($incomes, 2, ',', '.')
                 ]
             ], 200);

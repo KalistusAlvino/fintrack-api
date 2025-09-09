@@ -12,4 +12,8 @@ class ExpensesCategory extends Model
         'name',
         'image'
     ];
+
+    public function expenses() {
+        return $this->hasMany(ExpensesCategory::class,'category_id','id');
+    }
 }

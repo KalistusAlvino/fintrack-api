@@ -16,14 +16,24 @@ use Illuminate\Validation\ValidationException;
 
 class ExpensesController extends Controller
 {
-     public function getExpensesCategory() {
+    public function getExpensesCategory()
+    {
         try {
             $categories = ExpensesCategory::all();
+
+            $categoriesData = $categories->map(function ($category) {
+                return [
+                    'id' => $category->id,
+                    'name' => $category->name,
+                    'image' => asset($category->image) // generate full URL
+                ];
+            });
+
 
             return response()->json([
                 'success' => true,
                 'message' => 'Expenses categories fetched successfully',
-                'data' => $categories
+                'data' => $categoriesData
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
@@ -58,7 +68,7 @@ class ExpensesController extends Controller
 
                 return response()->json([
                     'success' => true,
-                    'message' => 'Income category created successfully',
+                    'message' => 'Expenses category created successfully',
                     'data' => $expensesCategory
                 ], 201);
             }
@@ -84,7 +94,7 @@ class ExpensesController extends Controller
             $expenses = Expenses::with('expensesCategory')->whereHas('wallet', function ($query) use ($userId) {
                 $query->where('user_id', $userId);
             })
-                ->orderBy('date', 'desc')
+                ->orderBy('created_at', 'desc')
                 ->limit(5)
                 ->get();
 
@@ -92,7 +102,8 @@ class ExpensesController extends Controller
                 return [
                     'id' => $expenses->id ?? null,
                     'name' => $expenses->expensesCategory->name ?? 'No Category',
-                    'images' => $expenses->expensesCategory->image ?? null,
+                    'images' => asset($expenses->expensesCategory->image),
+                    'description' => $expenses->description ?? 'No Description',
                     'date' => $expenses->date ? Carbon::parse($expenses->date)->format('M j, Y') : null,
                     'amount' => $expenses->amount ?? 0,
                     'formatted_amount' => number_format($expenses->amount, 2, ',', '.')
@@ -152,8 +163,8 @@ class ExpensesController extends Controller
                 $report[] = [
                     'month_name' => $date->format('F Y'), // Format 'July 2025'
                     'month_key' => $monthKey,
-                    'total_expenses' => (float) $totalExpenses,
-                    'formatted_expenses' => number_format($totalExpenses, 2, ',', '.')
+                    'total' => (float) $totalExpenses,
+                    'formatted_total' => number_format($totalExpenses, 2, ',', '.')
                 ];
             }
 
@@ -187,7 +198,7 @@ class ExpensesController extends Controller
                 'success' => true,
                 'message' => 'Expenses data fetched successfully',
                 'data' => [
-                    'total_amount' => $expenses ?? 0,
+                    'total_amount' => (int) $expenses ?? 0,
                     'formatted_total_amount' => number_format($expenses, 2, ',', '.')
                 ]
             ], 200);
@@ -200,7 +211,7 @@ class ExpensesController extends Controller
         }
     }
 
-     public function incomePost(Request $request)
+    public function expensesPost(Request $request)
     {
         try {
             $request->validate([

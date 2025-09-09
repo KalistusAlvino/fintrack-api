@@ -17,3 +17,5 @@ Route::get('/success-verify', function() {
 Route::get('/failed-verify', function() {
     return view('failed-verify');
 });
+
+
