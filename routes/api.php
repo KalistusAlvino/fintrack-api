@@ -23,6 +23,7 @@ Route::controller(LoginController::class)->group(function () {
 Route::middleware('auth:api')->group(function () {
     Route::controller(WalletController::class)->group(function () {
         Route::get('wallet', 'index')->name('wallet.index');
+        Route::get('profile', 'profile')->name('profile');
     });
 
     Route::controller(IncomeController::class)->group(function () {
@@ -36,6 +37,7 @@ Route::middleware('auth:api')->group(function () {
         Route::get('wallet/income', 'income')->name('wallet.income');
         Route::get('wallet/monthly-income', 'monthlyIncome')->name('wallet.monthly-income');
         Route::get('wallet/this-month-income', 'thisMonthIncome')->name('wallet.thisMonthIncome');
+        Route::get('wallet/all-income', 'allIncome')->name('wallet.all-income');
         //Post
         Route::post('wallet/income', 'incomePost')->name('wallet.income.post');
     });
@@ -51,6 +53,7 @@ Route::middleware('auth:api')->group(function () {
         Route::get('wallet/expenses', 'expenses')->name('wallet.expenses');
         Route::get('wallet/monthly-expenses', 'monthlyExpenses')->name('wallet.monthly-expenses');
         Route::get('wallet/this-month-expenses', 'thisMonthExpenses')->name('wallet.thisMonthExpenses');
+        Route::get('wallet/all-expenses', 'allExpenses')->name('wallet.all-expenses');
         //Post
         Route::post('wallet/expenses', 'expensesPost')->name('wallet.expenses.post');
     });

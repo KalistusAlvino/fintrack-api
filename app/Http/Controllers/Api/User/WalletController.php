@@ -40,10 +40,24 @@ class WalletController extends Controller
         }
     }
 
-
-
-
-
-
+    public function profile()
+    {
+        try {
+            return response()->json([
+                'success' => true,
+                'message' => 'Profile data fetched successfully',
+                'data' => [
+                    'username' => Auth::user()->username,
+                    'email' => Auth::user()->email,
+                ]
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error fetching profile data',
+                'data' => []
+            ], 500);
+        }
+    }
 
 }

@@ -44,6 +44,41 @@ class ExpensesController extends Controller
         }
     }
 
+    public function allExpenses() {
+          try {
+            $userId = Auth::id() ?? null;
+            $expenses = Expenses::with('expensesCategory')->whereHas('wallet', function ($query) use ($userId) {
+                $query->where('user_id', $userId);
+            })
+                ->orderBy('created_at', 'desc')
+                ->get();
+
+            $data = $expenses->map(function ($expenses) {
+                return [
+                    'id' => $expenses->id ?? null,
+                    'name' => $expenses->expensesCategory->name ?? 'No Category',
+                    'images' => asset($expenses->expensesCategory->image),
+                    'description' => $expenses->description ?? 'No Description',
+                    'date' => $expenses->date ? Carbon::parse($expenses->date)->format('M j, Y') : null,
+                    'amount' => $expenses->amount ?? 0,
+                    'formatted_amount' => number_format($expenses->amount, 2, ',', '.')
+                ];
+            });
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Expenses data fetched successfully',
+                'data' => $data
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error fetching expenses data' . $e->getMessage(),
+                'data' => []
+            ], 500);
+        }
+    }
+
     public function expensesCategoryPost(Request $request)
     {
         try {

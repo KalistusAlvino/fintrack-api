@@ -61,6 +61,42 @@ class IncomeController extends Controller
         }
     }
 
+    public function allIncome()
+    {
+        try {
+            $userId = Auth::id() ?? null;
+            $incomes = Income::with('incomeCategory')->whereHas('wallet', function ($query) use ($userId) {
+                $query->where('user_id', $userId);
+            })
+                ->orderBy('created_at', 'desc')
+                ->get();
+
+            $data = $incomes->map(function ($income) {
+                return [
+                    'id' => $income->id ?? null,
+                    'name' => $income->incomeCategory->name ?? 'No Category',
+                    'images' => asset($income->incomeCategory->image),
+                    'description' => $income->description ?? 'No Description',
+                    'date' => $income->date ? Carbon::parse($income->date)->format('M j, Y') : null,
+                    'amount' => $income->amount ?? 0,
+                    'formatted_amount' => number_format($income->amount, 2, ',', '.')
+                ];
+            });
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Income data fetched successfully',
+                'data' => $data
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error fetching income data' . $e->getMessage(),
+                'data' => []
+            ], 500);
+        }
+    }
+
     public function getIncomeCategory()
     {
         try {
