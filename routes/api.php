@@ -24,6 +24,7 @@ Route::middleware('auth:api')->group(function () {
     Route::controller(WalletController::class)->group(function () {
         Route::get('wallet', 'index')->name('wallet.index');
         Route::get('profile', 'profile')->name('profile');
+        Route::post('logout','logout')->name('logout');
     });
 
     Route::controller(IncomeController::class)->group(function () {

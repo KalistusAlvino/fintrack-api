@@ -60,4 +60,33 @@ class WalletController extends Controller
         }
     }
 
+    public function logout()
+    {
+        try {
+            if (Auth::check()) {
+                Auth::user()->tokens()->delete();
+
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Successfully logged out',
+                    'data' => null,
+                ], 200);
+            }
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'User not authenticated',
+                'data' => null,
+            ], 401);
+        } catch (\Exception $e) {
+            Log::error('Logout Error: ' . $e->getMessage());
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'An error occurred during logout',
+                'data' => null,
+            ], 500);
+        }
+    }
+
 }
