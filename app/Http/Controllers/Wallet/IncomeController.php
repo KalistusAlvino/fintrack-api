@@ -97,6 +97,61 @@ class IncomeController extends Controller
         }
     }
 
+    public function detailIncome($id)
+    {
+        try {
+            $incomes = Income::with('incomeCategory')->whereHas('wallet', function ($query) use ($id) {
+                $query->where('id', $id);
+            })
+                ->firstOrFail();
+            return response()->json([
+                'success' => true,
+                'message' => 'Detail income data fetched successfully',
+                'data' => [
+                    'id' => $incomes->id ?? null,
+                    'name' => $incomes->incomeCategory->name ?? 'No Category',
+                    'images' => asset($incomes->incomeCategory->image),
+                    'description' => $incomes->description ?? 'No Description',
+                    'date' => $incomes->date ? Carbon::parse($incomes->date)->format('M j, Y') : null,
+                    'amount' => $incomes->amount ?? 0,
+                    'formatted_amount' => number_format($incomes->amount, 2, ',', '.')
+                ]
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error fetching detail income data' . $e->getMessage(),
+                'data' => []
+            ], 500);
+        }
+    }
+
+    public function incomeDelete($id){
+        try {
+            $income = Income::findOrFail($id);
+            $wallet = Auth::user()->wallet;
+
+            // Kurangi saldo wallet sebelum menghapus income
+            $wallet->update([
+                'balance' => $wallet->balance - $income->amount
+            ]);
+
+            $income->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Income data deleted successfully',
+                'data' => []
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error deleting income data' . $e->getMessage(),
+                'data' => []
+            ], 500);
+        }
+    }
+
     public function getIncomeCategory()
     {
         try {

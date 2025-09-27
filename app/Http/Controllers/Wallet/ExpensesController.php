@@ -79,6 +79,61 @@ class ExpensesController extends Controller
         }
     }
 
+     public function detailExpenses($id)
+    {
+        try {
+            $expenses = Expenses::with('expensesCategory')->whereHas('wallet', function ($query) use ($id) {
+                $query->where('id', $id);
+            })
+                ->firstOrFail();
+            return response()->json([
+                'success' => true,
+                'message' => 'Detail expenses data fetched successfully',
+                'data' => [
+                    'id' => $expenses->id ?? null,
+                    'name' => $expenses->expensesCategory->name ?? 'No Category',
+                    'images' => asset($expenses->expensesCategory->image),
+                    'description' => $expenses->description ?? 'No Description',
+                    'date' => $expenses->date ? Carbon::parse($expenses->date)->format('M j, Y') : null,
+                    'amount' => $expenses->amount ?? 0,
+                    'formatted_amount' => number_format($expenses->amount, 2, ',', '.')
+                ]
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error fetching detail expenses data' . $e->getMessage(),
+                'data' => []
+            ], 500);
+        }
+    }
+
+     public function expensesDelete($id){
+        try {
+            $expenses = Expenses::findOrFail($id);
+            $wallet = Auth::user()->wallet;
+
+            // Kurangi saldo wallet sebelum menghapus expenses
+            $wallet->update([
+                'balance' => $wallet->balance + $expenses->amount
+            ]);
+
+            $expenses->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Expenses data deleted successfully',
+                'data' => []
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error deleting expenses data' . $e->getMessage(),
+                'data' => []
+            ], 500);
+        }
+    }
+
     public function expensesCategoryPost(Request $request)
     {
         try {

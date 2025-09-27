@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\User;
 
 use App\Http\Controllers\Controller;
+use App\Models\Expenses;
 use App\Models\Income;
 use App\Models\IncomeCategory;
 use App\Models\User;
@@ -59,6 +60,7 @@ class WalletController extends Controller
             ], 500);
         }
     }
+
 
     public function logout()
     {
