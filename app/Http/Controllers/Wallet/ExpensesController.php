@@ -44,8 +44,9 @@ class ExpensesController extends Controller
         }
     }
 
-    public function allExpenses() {
-          try {
+    public function allExpenses()
+    {
+        try {
             $userId = Auth::id() ?? null;
             $expenses = Expenses::with('expensesCategory')->whereHas('wallet', function ($query) use ($userId) {
                 $query->where('user_id', $userId);
@@ -79,12 +80,10 @@ class ExpensesController extends Controller
         }
     }
 
-     public function detailExpenses($id)
+    public function detailExpenses($id)
     {
         try {
-            $expenses = Expenses::with('expensesCategory')->whereHas('wallet', function ($query) use ($id) {
-                $query->where('id', $id);
-            })
+            $expenses = Expenses::where('id', $id)->with('expensesCategory')
                 ->firstOrFail();
             return response()->json([
                 'success' => true,
@@ -108,7 +107,8 @@ class ExpensesController extends Controller
         }
     }
 
-     public function expensesDelete($id){
+    public function expensesDelete($id)
+    {
         try {
             $expenses = Expenses::findOrFail($id);
             $wallet = Auth::user()->wallet;

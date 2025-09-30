@@ -100,9 +100,7 @@ class IncomeController extends Controller
     public function detailIncome($id)
     {
         try {
-            $incomes = Income::with('incomeCategory')->whereHas('wallet', function ($query) use ($id) {
-                $query->where('id', $id);
-            })
+            $incomes = Income::where('id', $id)->with('incomeCategory')
                 ->firstOrFail();
             return response()->json([
                 'success' => true,
